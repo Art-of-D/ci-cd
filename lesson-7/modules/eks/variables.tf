@@ -1,6 +1,6 @@
 variable "region" {
   description = "AWS region for deployment"
-  default     = "us-east-1"
+  default     = "us-west-2"
 }
 
 variable "cluster_name" {
@@ -30,10 +30,10 @@ variable "desired_size" {
 
 variable "max_size" {
   description = "Maximum number of worker nodes"
-  default     = 3
+  default     = 6
 }
 
 variable "min_size" {
   description = "Minimum number of worker nodes"
-  default     = 1
+  default     = 2
 }

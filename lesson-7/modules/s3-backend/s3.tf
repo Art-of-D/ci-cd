@@ -1,10 +1,11 @@
+/*
 # Створюємо S3-бакет
 resource "aws_s3_bucket" "terraform_state" {
   bucket = var.bucket_name
 
   tags = {
     Name        = "Terraform State Bucket"
-    Environment = "lesson-5"
+    Environment = "lesson-7"
   }
 }
 
@@ -24,3 +25,4 @@ resource "aws_s3_bucket_ownership_controls" "terraform_state_ownership" {
     object_ownership = "BucketOwnerEnforced"
   }
 }
+*/

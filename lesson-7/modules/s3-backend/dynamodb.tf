@@ -1,3 +1,4 @@
+/*
 # Створюємо DynamoDB-таблицю для блокування стейтів
 resource "aws_dynamodb_table" "terraform_locks" {
   name         = var.table_name
@@ -11,6 +12,7 @@ resource "aws_dynamodb_table" "terraform_locks" {
 
   tags = {
     Name        = "Terraform Lock Table"
-    Environment = "lesson-5"
+    Environment = "lesson-7"
   }
 }
+*/
