@@ -1,5 +1,5 @@
 image:
-  repository:
+  repository: АДРЕСА В AWS ECR
   tag: latest
   pullPolicy: Always
 
