@@ -47,8 +47,8 @@ controller:
                   - usernamePassword:
                       scope: GLOBAL
                       id: github-token
-                      username: Art_of_D # GitHub username
-                      password: github_pat_<token> # GitHub PAT
+                      username: ${github_username} # GitHub username
+                      password: ${github_token} # GitHub PAT
                       description: GitHub PAT
       seed-job: |
         jobs:
@@ -58,7 +58,7 @@ controller:
                 scm {
                   git {
                     remote {
-                      url('<https://github.com/AndriyDmitriv/infra.git>') # GitHub repository
+                      url('https://github.com/Art-of-D/ci-cd.git') # GitHub repository
                       credentials('github-token')
                     }
                     branches('*/main')
@@ -73,7 +73,7 @@ controller:
                             scm {
                               git {
                                 remote {
-                                  url("<https://github.com/AndriyDmitriv/infra.git>") # GitHub repository
+                                  url("https://github.com/Art-of-D/ci-cd.git") # GitHub repository
                                   credentials("github-token")
                                 }
                                 branches("*/main")

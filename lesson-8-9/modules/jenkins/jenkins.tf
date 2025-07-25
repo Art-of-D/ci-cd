@@ -78,7 +78,7 @@ resource "aws_iam_role_policy" "jenkins_ecr_policy" {
 resource "helm_release" "jenkins" {
   name             = "jenkins"
   namespace        = "jenkins"
-  repository       = "<https://charts.jenkins.io>"
+  repository       = "https://charts.jenkins.io"
   chart            = "jenkins"
   version          = "5.0.16"
   create_namespace = true

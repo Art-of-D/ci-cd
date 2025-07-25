@@ -35,12 +35,30 @@ module "eks" {
   min_size        = 2
 }
 
+provider "helm" {
+  kubernetes = {
+    config_path = "~/.kube/config"
+  }
+}
+
+
 # Підключаємо модуль jenkins
 module "jenkins" {
   source       = "./modules/jenkins"
-  cluster_name = module.eks.cluster_name
-
+  cluster_name = module.eks.eks_cluster_name
+  kubeconfig   = "~/.kube/config"
+  
+  oidc_provider_url = module.eks.oidc_provider_url
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  
   providers = {
     helm = helm
   }
+}
+
+# Підключаємо модуль argo_cd
+module "argo_cd" {
+  source       = "./modules/argo-cd"
+  namespace    = "argocd"
+  chart_version = "5.46.4"
 }
