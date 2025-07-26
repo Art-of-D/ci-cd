@@ -28,7 +28,7 @@ spec:
   }
 
   environment {
-    ECR_REGISTRY = "321699387235.dkr.ecr.us-west-2.amazonaws.com/lesson-8-9-ecr"
+    ECR_REGISTRY = "321699387235.dkr.ecr.us-west-2.amazonaws.com"
     IMAGE_NAME   = "lesson-8-9-ecr"
     IMAGE_TAG    = "latest"
 
