@@ -28,9 +28,7 @@ spec:
   }
 
   environment {
-    # Поміняй на назву свого репозиторію
     ECR_REGISTRY = "321699387235.dkr.ecr.us-west-2.amazonaws.com/lesson-8-9-ecr"
-    # І це у разі зміни назви репозиторію
     IMAGE_NAME   = "lesson-8-9-ecr"
     IMAGE_TAG    = "latest"
 
