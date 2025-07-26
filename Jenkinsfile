@@ -28,7 +28,9 @@ spec:
   }
 
   environment {
-    ECR_REGISTRY = "321699387235.dkr.ecr.us-west-2.amazonaws.com" # <--- Поміняй ось це на назву свого репозиторію
+    # Поміняй на назву свого репозиторію
+    ECR_REGISTRY = "321699387235.dkr.ecr.us-west-2.amazonaws.com/lesson-8-9-ecr"
+    # І це у разі зміни назви репозиторію
     IMAGE_NAME   = "lesson-8-9-ecr"
     IMAGE_TAG    = "latest"
 
@@ -43,7 +45,7 @@ spec:
           sh '''
             /kaniko/executor \\
               --context `pwd` \\
-              --dockerfile `pwd`/Dockerfile \\
+              --dockerfile `pwd`django/Dockerfile \\
               --destination=$ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG \\
               --cache=true \\
               --insecure \\
@@ -58,7 +60,7 @@ spec:
         container('git') {
           withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PAT')]) {
             sh '''
-              git clone <https://$GIT_USERNAME:$GIT_PAT@github.com/AndriyDmitriv/goit-devops.git>
+              git clone https://$GIT_USERNAME:$GIT_PAT@github.com/Art-of-D/ci-cd.git
               cd goit-devops/django-chart
 
               sed -i "s/tag: .*/tag: $IMAGE_TAG/" values.yaml
