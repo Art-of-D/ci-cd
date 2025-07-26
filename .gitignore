@@ -1,0 +1,34 @@
+# Локальні файли Terraform
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+
+# Якщо використовуєш workspaces
+terraform.tfstate.d/
+
+# План-файли
+*.tfplan
+
+# Вихідні дані з apply або debug
+crash.log
+*.log
+
+# IDE/редактор
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# MacOS
+.DS_Store
+
+# Linux
+*~
+
+# Якщо використовуєш `.env` для змінних
+.env
+.env.*
+
+# Тестові або тимчасові файли
+tmp/
