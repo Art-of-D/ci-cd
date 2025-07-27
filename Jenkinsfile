@@ -42,7 +42,8 @@ spec:
         container('git') {
           script {
             sh 'git config --global --add safe.directory $(pwd)'
-            def commitSha = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+            def commitSha = sh(script: "git ls-remote https://github.com/Art-of-D/ci-cd.git HEAD | awk '{print substr(\$1,1,7)}'", returnStdout: true).trim()
+            echo "IMAGE_TAG for build: ${commitSha}"
             env.IMAGE_TAG = commitSha
           }
         }
