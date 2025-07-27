@@ -30,13 +30,23 @@ spec:
   environment {
     ECR_REGISTRY = "321699387235.dkr.ecr.us-west-2.amazonaws.com"
     IMAGE_NAME   = "lesson-8-9-ecr"
-    IMAGE_TAG    = "latest"
+    IMAGE_TAG    = ""
 
     COMMIT_EMAIL = "jenkins@localhost"
     COMMIT_NAME  = "jenkins"
   }
 
   stages {
+    stage('Set Image Tag') {
+      steps {
+        container('git') {
+          script {
+            def commitSha = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+            env.IMAGE_TAG = commitSha
+          }
+        }
+      }
+    }
     stage('Build & Push Docker Image') {
       steps {
         container('kaniko') {
