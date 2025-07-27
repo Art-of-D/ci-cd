@@ -4,7 +4,7 @@ applications:
     project: default
     source:
       repoURL: https://github.com/Art-of-D/ci-cd.git
-      path: django-chart
+      path: lesson-8-9/charts/django-app
       targetRevision: main
       helm:
         valueFiles:
