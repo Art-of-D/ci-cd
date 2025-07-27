@@ -1,6 +1,6 @@
 image:
   repository: АДРЕСА В AWS ECR
-  tag: latest
+  tag: 
   pullPolicy: Always
 
 service:
