@@ -59,6 +59,7 @@ spec:
           withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PAT')]) {
             sh '''
               git clone https://$GIT_USERNAME:$GIT_PAT@github.com/Art-of-D/ci-cd.git
+              cd ci-cd
               cd lesson-8-9/charts/django-app
 
               sed -i "s/tag: .*/tag: $IMAGE_TAG/" values.yaml

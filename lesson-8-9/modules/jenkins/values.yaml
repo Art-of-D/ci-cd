@@ -5,6 +5,14 @@ controller:
     tag: "2.452.1-jdk17"
     pullPolicy: Always
 
+  existingSecret: github-token-secret
+
+  additionalExistingSecrets:
+    - name: github-token-secret
+      keyName: GITHUB_USERNAME
+    - name: github-token-secret
+      keyName: GITHUB_TOKEN
+
   admin:
     username: admin
     password: admin123
@@ -41,18 +49,6 @@ controller:
     name: jenkins-sa
     create: false
 
-  env:
-    - name: GITHUB_USERNAME
-      valueFrom:
-        secretKeyRef:
-          name: github-token-secret
-          key: username
-    - name: GITHUB_TOKEN
-      valueFrom:
-        secretKeyRef:
-          name: github-token-secret
-          key: password
-
   javaOpts: "-Dcasc.reload.token=RANDOM -Djenkins.install.runSetupWizard=false"
 
   JCasC:
@@ -68,8 +64,8 @@ controller:
                   - usernamePassword:
                       scope: GLOBAL
                       id: github-token
-                      username: ${GITHUB_USERNAME}
-                      password: ${GITHUB_TOKEN}
+                      username: ${github-token-secret-GITHUB_USERNAME}
+                      password: ${github-token-secret-GITHUB_TOKEN}
                       description: GitHub PAT
       clouds: |
         jenkins:
