@@ -1,6 +1,6 @@
 image:
   repository: 321699387235.dkr.ecr.us-west-2.amazonaws.com/lesson-8-9-ecr
-  tag: 404bd68
+  tag: b6900b3
   pullPolicy: Always
 
 service:
