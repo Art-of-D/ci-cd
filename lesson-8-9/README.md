@@ -4,7 +4,7 @@
 Progect/
 │
 ├── main.tf                  # Головний файл для підключення модулів
-├── backend.tf               # Налаштування бекенду для стейтів (S3 + DynamoDB
+├── backend.tf               # Налаштування бекенду для стейтів (S3 + DynamoDB)
 ├── outputs.tf               # Загальні виводи ресурсів
 │
 ├── modules/                 # Каталог з усіма модулями
@@ -74,18 +74,18 @@ terraform plan
 # 3. Створення інфраструктури
 terraform apply
 
-# 4.Пуш образу на сервер
+# 4. Пуш образу на сервер
 aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin "АДРЕСА ДО РЕПО"
 
-docker buildx build --platform linux/amd64 -t "АДРЕСА ДО РЕПО"/lesson-8-9-ecr:latest .
+docker buildx build --platform linux/amd64 -t "АДРЕСА ДО РЕПО"/"ТВІЙ БАКЕТ":latest .
 
-docker push "АДРЕСА ДО РЕПО"/lesson-8-9-ecr:latest
+docker push "АДРЕСА ДО РЕПО"/"ТВІЙ БАКЕТ":latest
 
-# 5.Підключення до вашого кластеру
+# 5. Підключення до вашого кластеру
 
 aws eks --region us-west-2 update-kubeconfig --name eks-cluster-demo
 
-# 6.Створити namespace для передачі токену jenkins & argo-cd
+# 6. Створити namespace для передачі токену jenkins & argo-cd
 
 kubectl create namespace argocd
 kubectl create namespace jenkins
@@ -93,39 +93,57 @@ kubectl create namespace jenkins
 # Створити секрет для Argo CD
 
 kubectl create secret generic github-token-secret \
- --from-literal=github_username=your_github_username \
- --from-literal=github_token=ghp_xxxxxxxxx_token \
+ --from-literal=GITHUB_USERNAME=your_github_username \
+ --from-literal=GITHUB_TOKEN=ghp_xxxxxxxxx_token \
  --namespace=argocd
 
 # Створити той самий секрет для Jenkins
 
 kubectl create secret generic github-token-secret \
- --from-literal=github_username=your_github_username \
- --from-literal=github_token=ghp_xxxxxxxxx_token \
+ --from-literal=GITHUB_USERNAME=your_github_username \
+ --from-literal=GITHUB_TOKEN=ghp_xxxxxxxxx_token \
  --namespace=jenkins
 
-
-# 7.Запуск helm
-
-helm upgrade --install django-app ./charts/django-app
-
-# У разі виникнення проблем з доступом до токену можна додатково застосувати
-
+# 7. Додати jenkins argo-cd
 helm repo add jenkins https://charts.jenkins.io
 helm repo update
-helm install jenkins jenkins/jenkins -n jenkins -f ./jenkins-values.yaml
+helm install jenkins jenkins/jenkins -n jenkins -f ./values.yaml
 
 helm repo add argo https://argoproj.github.io/argo-helm
 helm upgrade --install argocd argo/argo-cd -n argocd --create-namespace
 
-# ! Перевірка !
-kubectl get pods -o wide
-kubectl get svc
-kubectl logs <pod-name>
+# 8. Підключення до jenkins
+kubectl port-forward svc/jenkins 8080:8080 -n jenkins
 
-# Перевірка argo-cd
-kubectl get secret argocd-initial-admin-secret -n argocd -o yaml
+# Щоб отримати пароль для admin
+kubectl exec --namespace jenkins -it svc/jenkins -c jenkins -- /bin/cat /run/secrets/additional/chart-admin-password && echo
+
+# Обовʼязкові кроки в інтерфейсі
+Manage Jenkins → In-process Script Approval → Approve
+
+Перейти до seed-job → Build now
+
+Перейти до django-pipeline → Build now
+
+# Підключення до argo-cd
+kubectl port-forward service/argo-cd-argocd-server -n argocd 8083:443
+
+# Отримати пароль для admin
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+
+#Перевірити роботу app
 
 # LAST. Видалення всієї інфраструктури
 terraform destroy
 ```
+
+📋 ! Вимоги !
+
+    • AWS CLI налаштований (aws configure)
+    • Terraform ≥ 1.3
+    • Права доступу до:
+    • s3
+    • dynamodb
+    • ecr
+
+    Змінити у values.yaml (argo-cd & jenkins & jenkinsfile) посилання на GIT та AWS

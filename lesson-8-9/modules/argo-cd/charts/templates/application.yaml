@@ -10,11 +10,16 @@ spec:
     repoURL: {{ .source.repoURL }}
     targetRevision: {{ .source.targetRevision }}
     path: {{ .source.path }}
+    helm:
+      valueFiles:
+      {{- range .source.helm.valueFiles }}
+      - {{ . | quote }}
+      {{- end }}
   destination:
     server: {{ .destination.server }}
     namespace: {{ .destination.namespace }}
   syncPolicy:
     automated:
-      prune: {{ .syncPolicy.automated.prune | default true }}
-      selfHeal: {{ .syncPolicy.automated.selfHeal | default true }}
+      prune: {{ .syncPolicy.automated.prune }}
+      selfHeal: {{ .syncPolicy.automated.selfHeal }}
 {{- end }}

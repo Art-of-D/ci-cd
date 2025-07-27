@@ -4,13 +4,13 @@ applications:
     project: default
     source:
       repoURL: https://github.com/Art-of-D/ci-cd.git
-      path: django-chart
+      path: lesson-8-9/charts/django-app
       targetRevision: main
       helm:
         valueFiles:
           - values.yaml
     destination:
-      server: <https://kubernetes.default.svc>
+      server: https://kubernetes.default.svc
       namespace: default
     syncPolicy:
       automated:
@@ -20,8 +20,12 @@ applications:
 repositories:
   - name: example-app
     url: https://github.com/Art-of-D/ci-cd.git
-    username: ${github_username}
-    password: ${github_token}
+    usernameSecret:
+      name: github-token-secret
+      key: github_username
+    passwordSecret:
+      name: github-token-secret
+      key: github_token
 
 repoConfig:
   insecure: "true"

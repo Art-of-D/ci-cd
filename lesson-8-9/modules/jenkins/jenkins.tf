@@ -24,9 +24,6 @@ resource "kubernetes_service_account" "jenkins_sa" {
       "eks.amazonaws.com/role-arn" = aws_iam_role.jenkins_kaniko_role.arn
     }
   }
-  depends_on = [
-    helm_release.jenkins
-  ]
 }
 
 resource "aws_iam_role" "jenkins_kaniko_role" {
@@ -85,5 +82,9 @@ resource "helm_release" "jenkins" {
 
   values = [
     file("${path.module}/values.yaml")
+  ]
+  
+  depends_on = [
+    kubernetes_service_account.jenkins_sa
   ]
 }

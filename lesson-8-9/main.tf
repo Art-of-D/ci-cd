@@ -41,6 +41,10 @@ provider "helm" {
   }
 }
 
+provider "kubernetes" {
+  config_path = "~/.kube/config"
+}
+
 
 # Підключаємо модуль jenkins
 module "jenkins" {
@@ -53,7 +57,10 @@ module "jenkins" {
   
   providers = {
     helm = helm
+    kubernetes = kubernetes
   }
+
+  depends_on = [module.eks]
 }
 
 # Підключаємо модуль argo_cd
@@ -61,4 +68,6 @@ module "argo_cd" {
   source       = "./modules/argo-cd"
   namespace    = "argocd"
   chart_version = "5.46.4"
+
+  depends_on = [module.eks]
 }
