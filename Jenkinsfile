@@ -41,6 +41,7 @@ spec:
       steps {
         container('git') {
           script {
+            sh 'git config --global --add safe.directory $(pwd)'
             def commitSha = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
             env.IMAGE_TAG = commitSha
           }
