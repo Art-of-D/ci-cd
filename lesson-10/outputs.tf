@@ -1,7 +1,7 @@
 /*
 output "s3_bucket_name" {
   description = "Назва S3-бакета для стейтів"
-  value       = #module.s3_backend.s3_bucket_name
+  value       = module.s3_backend.s3_bucket_name
 }
 
 output "dynamodb_table_name" {
@@ -48,3 +48,38 @@ output "jenkins_namespace" {
   value = module.jenkins.jenkins_namespace
 }
 
+output "argo_cd_server_service" {
+  value = module.argo_cd.argo_cd_server_service
+}
+
+output "argo_cd_namespace" {
+  value = module.argo_cd.argo_cd_namespace
+}
+
+output "argo_cd_admin_password_secret" {
+  value = module.argo_cd.argo_cd_admin_password
+}
+
+output "argo_cd_apps_release" {
+  value = module.argo_cd.argo_apps_release_name
+}
+
+output "db_endpoint" {
+  value = module.rds.db_instance_endpoint
+}
+
+output "db_port" {
+  value = module.rds.db_instance_port
+}
+
+output "db_name" {
+  value = module.rds.db_instance_name
+}
+
+output "db_username" {
+  value = module.rds.db_instance_username
+}
+
+output "db_security_group_id" {
+  value = module.rds.security_group_id
+}

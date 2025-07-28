@@ -1,6 +1,6 @@
 image:
   repository: 321699387235.dkr.ecr.us-west-2.amazonaws.com/lesson-8-9-ecr
-  tag: b6900b3
+  tag: latest
   pullPolicy: Always
 
 service:
@@ -14,8 +14,8 @@ hpa:
   targetCPUUtilizationPercentage: 70
 
 config:
-  POSTGRES_HOST: db
-  POSTGRES_PORT: 5432
-  POSTGRES_USER: django_user
-  POSTGRES_DB: django_db
-  POSTGRES_PASSWORD: pass9764gd
+  POSTGRES_HOST: ${module.rds.endpoint}
+  POSTGRES_PORT: ${module.rds.port}
+  POSTGRES_USER: ${module.rds.username}
+  POSTGRES_DB: ${module.rds.database_name}
+  POSTGRES_PASSWORD: ${module.rds.password}
