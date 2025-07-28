@@ -66,7 +66,7 @@ module "jenkins" {
 resource "random_password" "db" {
   length           = 20
   special          = true
-  override_characters = "!@#$%&*()-_=+"
+  override_special = "!@#$%&*()-_=+"
 }
 
 # Підключаємо модуль argo_cd
