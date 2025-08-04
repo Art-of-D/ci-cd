@@ -29,6 +29,13 @@ Project/
 │   │   ├── aws_ebs_csi_driver.tf # Встановлення плагіну csi drive
 │   │   ├── variables.tf     # Змінні для EKS
 │   │   └── outputs.tf       # Виведення інформації про кластер
+│   ├── rds/                 # Модуль для RDS
+│   │   ├── rds.tf           # Створення RDS бази даних
+│   │   ├── aurora.tf        # Створення aurora кластера бази даних
+│   │   ├── shared.tf        # Спільні ресурси
+│   │   ├── variables.tf     # Змінні (ресурси, креденшели, values)
+│   │   └── outputs.tf
+│   │
 │   │
 │   ├── jenkins/             # Модуль для Helm-установки Jenkins
 │   │   ├── jenkins.tf       # Helm release для Jenkins
@@ -60,6 +67,28 @@ Project/
 │       └── values.yaml     # ConfigMap зі змінними середовища
 
 
+```
+
+Створений:
+
+- DynamoDB таблиця
+
+```
+aws dynamodb create-table \
+   --table-name terraform-locks \
+   --attribute-definitions AttributeName=LockID,AttributeType=S \
+   --key-schema AttributeName=LockID,KeyType=HASH \
+   --billing-mode PAY_PER_REQUEST \
+   --region us-west-2
+```
+
+- S3 bucket
+
+```
+aws s3api create-bucket \
+  --bucket СВОЄ ІМʼЯ \
+  --region us-west-2 \
+  --create-bucket-configuration LocationConstraint=us-west-2
 ```
 
 ## 🚀 Команди для запуску
@@ -107,7 +136,7 @@ kubectl create secret generic github-token-secret \
 # 7. Додати jenkins argo-cd
 helm repo add jenkins https://charts.jenkins.io
 helm repo update
-helm install jenkins jenkins/jenkins -n jenkins -f ./values.yaml
+helm install jenkins jenkins/jenkins -n jenkins -f modules/jenkins/values.yaml
 
 helm repo add argo https://argoproj.github.io/argo-helm
 helm upgrade --install argocd argo/argo-cd -n argocd --create-namespace
@@ -137,7 +166,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 terraform destroy
 ```
 
-📋 ! Вимоги !
+# ! Вимоги !
 
     • AWS CLI налаштований (aws configure)
     • Terraform ≥ 1.3
@@ -146,4 +175,70 @@ terraform destroy
     • dynamodb
     • ecr
 
-    Змінити у values.yaml (argo-cd & jenkins & jenkinsfile) посилання на GIT та AWS
+    Змінити у values.yaml & jenkinsfile (argo-cd & jenkins) посилання на GIT та AWS
+
+📘 RDS Terraform Module — PostgreSQL / Aurora
+
+# Опис змінних
+
+| Змінна                          | Тип            | Обов’язково | Опис                                                    |
+| ------------------------------- | -------------- | ----------- | ------------------------------------------------------- |
+| `name`                          | `string`       | ✅          | Назва RDS-ресурсу та Security Group                     |
+| `use_aurora`                    | `bool`         | ✅          | Якщо `true` — створюється Aurora, інакше стандартна RDS |
+| `aurora_instance_count`         | `number`       | ❌          | Кількість Aurora реплік (не writer)                     |
+| `engine`                        | `string`       | ✅          | `postgres`, `aurora-postgresql`, тощо                   |
+| `engine_version`                | `string`       | ✅          | Версія рушія (наприклад, `17.2`)                        |
+| `parameter_group_family_rds`    | `string`       | ✅          | Наприклад, `postgres17`                                 |
+| `parameter_group_family_aurora` | `string`       | ❌          | Якщо Aurora, наприклад `aurora-postgresql13`            |
+| `instance_class`                | `string`       | ✅          | Наприклад, `db.t3.medium`                               |
+| `allocated_storage`             | `number`       | ✅          | Тільки для RDS (обсяг в GB)                             |
+| `db_name`                       | `string`       | ✅          | Назва бази даних                                        |
+| `username`                      | `string`       | ✅          | Користувач бази даних                                   |
+| `password`                      | `string`       | ✅          | Пароль бази даних                                       |
+| `subnet_private_ids`            | `list(string)` | ✅          | Приватні підмережі (якщо `publicly_accessible = false`) |
+| `subnet_public_ids`             | `list(string)` | ✅          | Публічні підмережі (якщо `publicly_accessible = true`)  |
+| `publicly_accessible`           | `bool`         | ✅          | Чи буде БД доступною ззовні                             |
+| `multi_az`                      | `bool`         | ✅          | Розгортання у кількох зонах доступності                 |
+| `backup_retention_period`       | `number`       | ✅          | Тривалість збереження резервних копій (у днях)          |
+| `parameters`                    | `map(string)`  | ❌          | Додаткові параметри до Parameter Group                  |
+| `vpc_id`                        | `string`       | ✅          | ID VPC, у якій буде розміщена БД                        |
+| `tags`                          | `map(string)`  | ❌          | Користувацькі теги для всіх ресурсів                    |
+
+# Як змінити тип бази даних, рушій, клас інстансу:
+
+! Змінити з RDS на Aurora:
+
+use_aurora = true
+engine = "aurora-postgresql"
+engine_version = "17.2"
+parameter_group_family_aurora = "aurora-postgresql13"
+
+Примітка: При use_aurora = true створюється:
+• 1 кластер (aws_rds_cluster.aurora)
+• 1 writer + aurora_instance_count reader-реплік
+• окрема Parameter Group для кластеру
+
+# Outputs
+
+Output Опис
+db_instance_endpoint DNS ім’я інстансу (host без порту)
+db_instance_writer_endpoint Якщо Aurora — DNS endpoint writer’а
+db_instance_name Ім’я бази даних
+db_instance_username Ім’я користувача
+db_instance_password Пароль (sensitive)
+db_instance_port Порт (стандартно 5432)
+security_group_id ID створеного SG
+
+# Додатково
+
+    •	Якщо publicly_accessible = true, RDS буде доступною з Інтернету (відкритий SG, CIDR 0.0.0.0/0) — не рекомендується для продакшн.
+    •	Якщо використовується Aurora, обовʼязково задати engine_cluster, parameter_group_family_aurora.
+    •	Ви можете кастомізувати параметри БД через parameters = {}.
+
+# Підключення до БД із застосунку:
+
+POSTGRES_HOST: ${module.rds.db_instance_endpoint}
+POSTGRES_PORT: ${module.rds.db_instance_port}
+POSTGRES_DB: ${module.rds.db_instance_name}
+POSTGRES_USER: ${module.rds.db_instance_username}
+POSTGRES_PASSWORD: ${module.rds.db_instance_password}

@@ -12,7 +12,7 @@ resource "aws_dynamodb_table" "terraform_locks" {
 
   tags = {
     Name        = "Terraform Lock Table"
-    Environment = "lesson-7"
+    Environment = "final-project"
   }
 }
 */

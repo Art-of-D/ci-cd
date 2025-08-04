@@ -29,7 +29,7 @@ spec:
 
   environment {
     ECR_REGISTRY = "321699387235.dkr.ecr.us-west-2.amazonaws.com"
-    IMAGE_NAME   = "lesson-8-9-ecr"
+    IMAGE_NAME   = "final-project"
 
     COMMIT_EMAIL = "jenkins@localhost"
     COMMIT_NAME  = "jenkins"
@@ -71,7 +71,7 @@ spec:
             sh '''
               git clone https://$GIT_USERNAME:$GIT_PAT@github.com/Art-of-D/ci-cd.git
               cd ci-cd
-              cd lesson-10/charts/django-app
+              cd final-project/charts/django-app
 
               sed -i "s/tag: .*/tag: $IMAGE_TAG/" values.yaml
 

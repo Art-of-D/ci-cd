@@ -14,13 +14,13 @@ module "vpc" {
   public_subnets     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
   private_subnets    = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
   availability_zones = ["us-west-2a", "us-west-2b", "us-west-2c"]
-  vpc_name           = "lesson-8-9-vpc"
+  vpc_name           = "final-project-vpc"
 }
 
 # Підключаємо модуль ECR
 module "ecr" {
   source      = "./modules/ecr"
-  ecr_name    = "lesson-8-9-ecr"
+  ecr_name    = "final-project-ecr"
   scan_on_push = true
 }
 
@@ -63,11 +63,23 @@ module "jenkins" {
   depends_on = [module.eks]
 }
 
+resource "random_password" "db" {
+  length           = 20
+  special          = true
+  override_special = "!@#$%&*()-_=+"
+}
+
 # Підключаємо модуль argo_cd
 module "argo_cd" {
   source       = "./modules/argo-cd"
   namespace    = "argocd"
   chart_version = "5.46.4"
+
+  db_instance_endpoint = module.rds.db_instance_endpoint
+  db_instance_port     = module.rds.db_instance_port
+  db_instance_username = module.rds.db_instance_username
+  db_instance_password = module.rds.db_instance_password
+  db_instance_name     = module.rds.db_instance_name
 
   depends_on = [module.eks]
 }
@@ -90,7 +102,7 @@ module "rds" {
   allocated_storage          = 20
   db_name                    = "myapp"
   username                   = "postgres"
-  password                   = "admin123AWS23"
+  password                   = random_password.db.result
   subnet_private_ids         = module.vpc.private_subnets
   subnet_public_ids          = module.vpc.public_subnets
   publicly_accessible        = true
@@ -106,30 +118,4 @@ module "rds" {
     Environment = "dev"
     Project     = "myapp"
   }
-} 
-
-
-resource "helm_release" "django_app" {
-  name       = "example-app"
-  namespace  = "django"
-  chart      = "${path.module}/charts/django-app"
-
-  values = [
-    yamlencode({
-      image = {
-        repository = module.ecr.ecr_repository_url
-        tag        = "latest"
-        pullPolicy = "Always"
-      }
-      config = {
-        POSTGRES_HOST     = module.rds.db_instance_endpoint
-        POSTGRES_PORT     = module.rds.db_instance_port
-        POSTGRES_USER     = module.rds.db_instance_username
-        POSTGRES_DB       = module.rds.db_instance_name
-        POSTGRES_PASSWORD = module.rds.db_instance_password
-      }
-    })
-  ]
-
-  depends_on = [module.rds, module.eks]  # ensure RDS and EKS exist before Helm deploy
 }

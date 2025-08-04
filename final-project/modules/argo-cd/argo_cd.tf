@@ -19,8 +19,16 @@ resource "helm_release" "argo_apps" {
   create_namespace = false
 
   values = [
-    file("${path.module}/values.yaml")
+    file("${path.module}/values.yaml"), # базові значення з Git
+    templatefile("${path.module}/values.yaml.tpl", { # динамічні з RDS
+      db_host     = var.db_instance_endpoint
+      db_port     = var.db_instance_port
+      db_user     = var.db_instance_username
+      db_password = var.db_instance_password
+      db_name     = var.db_instance_name
+    })
   ]
+
   depends_on = [helm_release.argo_cd]
 }
 

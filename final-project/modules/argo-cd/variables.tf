@@ -1,7 +1,7 @@
 variable "name" {
   description = "Назва Helm-релізу"
   type        = string
-  default     = "argo-cd"
+  default     = "argocd"
 }
 
 variable "namespace" {
@@ -15,3 +15,9 @@ variable "chart_version" {
   type        = string
   default     = "5.46.4" 
 }
+
+variable "db_instance_endpoint" { type = string }
+variable "db_instance_port"     { type = string }
+variable "db_instance_username" { type = string }
+variable "db_instance_password" { type = string }
+variable "db_instance_name"     { type = string }

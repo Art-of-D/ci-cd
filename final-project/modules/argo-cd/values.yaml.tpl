@@ -4,9 +4,16 @@ applications:
     project: default
     source:
       repoURL: https://github.com/Art-of-D/ci-cd.git
-      path: lesson-8-9/charts/django-app
+      path: final-project/charts/django-app
       targetRevision: main
       helm:
+        values: |
+          config:
+            POSTGRES_HOST: "${db_host}"
+            POSTGRES_PORT: "${db_port}"
+            POSTGRES_USER: "${db_user}"
+            POSTGRES_PASSWORD: "${db_password}"
+            POSTGRES_DB: "${db_name}"
         valueFiles:
           - values.yaml
     destination:

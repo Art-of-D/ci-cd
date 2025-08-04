@@ -29,9 +29,9 @@ controller:
       cpu: "250m"
       memory: "512Mi"
 
-  persistentVolume:
+  persistence:
     enabled: true
-    storageClass: ebs-sc
+    storageClassName: gp2
     size: 10Gi
 
   installPlugins:

@@ -11,9 +11,15 @@ spec:
     targetRevision: {{ .source.targetRevision }}
     path: {{ .source.path }}
     helm:
+      {{- if .source.helm.values }}
+      values: |
+{{ .source.helm.values | indent 8 }}
+      {{- end }}
+      {{- if .source.helm.valueFiles }}
       valueFiles:
-      {{- range .source.helm.valueFiles }}
-      - {{ . | quote }}
+{{- range .source.helm.valueFiles }}
+        - {{ . | quote }}
+{{- end }}
       {{- end }}
   destination:
     server: {{ .destination.server }}

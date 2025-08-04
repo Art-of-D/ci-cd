@@ -1,5 +1,5 @@
 image:
-  repository: 321699387235.dkr.ecr.us-west-2.amazonaws.com/lesson-8-9-ecr
+  repository: 321699387235.dkr.ecr.us-west-2.amazonaws.com/final-project-ecr
   tag: latest
   pullPolicy: Always
 
