@@ -1,0 +1,130 @@
+controller:
+  image:
+    registry: docker.io
+    repository: jenkins/jenkins
+    tag: "2.452.1-jdk17"
+    pullPolicy: Always
+
+  existingSecret: github-token-secret
+
+  additionalExistingSecrets:
+    - name: github-token-secret
+      keyName: GITHUB_USERNAME
+    - name: github-token-secret
+      keyName: GITHUB_TOKEN
+
+  admin:
+    username: admin
+    password: admin123
+
+  serviceType: LoadBalancer
+  servicePort: 8080
+  targetPort: 8080
+
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "1Gi"
+    requests:
+      cpu: "250m"
+      memory: "512Mi"
+
+  persistence:
+    enabled: true
+    storageClassName: gp2
+    size: 10Gi
+
+  installPlugins:
+    - kubernetes:latest
+    - workflow-aggregator:latest
+    - git:latest
+    - configuration-as-code:latest
+    - credentials-binding:latest
+    - github:latest
+    - docker-plugin:latest
+    - docker-workflow:latest
+    - job-dsl:latest
+
+  serviceAccount:
+    name: jenkins-sa
+    create: false
+
+  javaOpts: "-Dcasc.reload.token=RANDOM -Djenkins.install.runSetupWizard=false"
+
+  JCasC:
+    security:
+      secrets: true
+    defaultConfig: false
+    configScripts:
+      security: |
+        jenkins:
+          securityRealm:
+            local:
+              allowsSignup: false
+              users:
+                - id: admin
+                  password: admin123
+          authorizationStrategy:
+            loggedInUsersCanDoAnything:
+              allowAnonymousRead: false
+      credentials: |
+        credentials:
+          system:
+            domainCredentials:
+              - credentials:
+                  - usernamePassword:
+                      scope: GLOBAL
+                      id: github-token
+                      username: ${github-token-secret-GITHUB_USERNAME}
+                      password: ${github-token-secret-GITHUB_TOKEN}
+                      description: GitHub PAT
+      clouds: |
+        jenkins:
+          clouds:
+            - kubernetes:
+                name: "kubernetes"
+                namespace: "jenkins"
+                serverUrl: "https://kubernetes.default.svc"
+                jenkinsUrl: "http://jenkins:8080"
+                jenkinsTunnel: "jenkins-agent:50000"
+                containerCapStr: "10"
+                retentionTimeout: 5
+      seed-job: |
+        jobs:
+          - script: >
+              job('seed-job') {
+                description('Initial pipeline setup job')
+                scm {
+                  git {
+                    remote {
+                      url('https://github.com/Art-of-D/ci-cd.git')
+                      credentials('github-token')
+                    }
+                    branches('*/main')
+                  }
+                }
+                steps {
+                  dsl {
+                    text('''
+                      pipelineJob("django-pipeline") {
+                        definition {
+                          cpsScm {
+                            scm {
+                              git {
+                                remote {
+                                  url("https://github.com/Art-of-D/ci-cd.git")
+                                  credentials("github-token")
+                                }
+                                branches("*/main")
+                              }
+                            }
+                          }
+                        }
+                        triggers {
+                          githubPush()
+                        }
+                      }
+                    ''')
+                  }
+                }
+              }

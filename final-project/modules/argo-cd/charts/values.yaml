@@ -1,0 +1,36 @@
+applications:
+  - name: example-app
+    namespace: default
+    project: default
+    source:
+      repoURL: https://github.com/Art-of-D/ci-cd.git
+      path: final-project/charts/django-app
+      targetRevision: main
+      helm:
+        values: |
+          db:
+            host: "${db_host}"
+            password: "${db_password}"
+        valueFiles:
+          - values.yaml
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: default
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+
+repositories:
+  - name: example-app
+    url: https://github.com/Art-of-D/ci-cd.git
+    usernameSecret:
+      name: github-token-secret
+      key: github_username
+    passwordSecret:
+      name: github-token-secret
+      key: github_token
+
+repoConfig:
+  insecure: "true"
+  enableLfs: "true"

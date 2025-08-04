@@ -1,0 +1,21 @@
+image:
+  repository: 321699387235.dkr.ecr.us-west-2.amazonaws.com/final-project-ecr
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: LoadBalancer
+  port: 80
+
+hpa:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 70
+
+config:
+  POSTGRES_HOST: ${module.rds.endpoint}
+  POSTGRES_PORT: ${module.rds.port}
+  POSTGRES_USER: ${module.rds.username}
+  POSTGRES_DB: ${module.rds.database_name}
+  POSTGRES_PASSWORD: ${module.rds.password}
